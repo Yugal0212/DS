@@ -41,7 +41,7 @@ class Graph {
     private ArrayList<Integer>[] adj;
     private Queue<Integer> queue;
 
-    @SuppressWarnings("unchecked")
+   
     Graph(int v) {
         V = v;
         adj = new ArrayList[v];
