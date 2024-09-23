@@ -1,89 +1,112 @@
+// Write a program to create a graph & implement the adjacency list 
+// representation of the graph 
+//  Apply DFS and BFS on the given graph. 
+
+
 import java.util.*;
 
+public class Lab_16_85 {
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+        System.out.print("Enter the total number of nodes : ");
+        int nodes = sc.nextInt();
+        Graph g = new Graph(nodes);
+        
+        System.out.print("Enter total number of edges : ");
+        int edges = sc.nextInt();
+        for (int i = 1; i <= edges; i++) {
+            System.out.print("Start[" + i + "] : ");
+            int start = sc.nextInt();
+            System.out.print("End[" + i + "] : ");
+            int end = sc.nextInt();
+            g.addEdge(start, end);
+        }
+        
+        System.out.print("Enter the node you want to start with for DFS: ");
+        int startDFS = sc.nextInt();
+        System.out.println("DFS Traversal:");
+        g.DFS(startDFS);
+        
+        System.out.print("Enter the node you want to start with for BFS: ");
+        int startBFS = sc.nextInt();
+        System.out.println("BFS Traversal:");
+        g.BFS(startBFS);
+        
+        sc.close();
+    }
+}
+
 class Graph {
-    private Map<Integer, List<Integer>> adjList;
+    private int V;
+    private ArrayList<Integer>[] adj;
+    private Queue<Integer> queue;
 
-    public Graph() {
-        adjList = new HashMap<>();
+    @SuppressWarnings("unchecked")
+    Graph(int v) {
+        V = v;
+        adj = new ArrayList[v];
+        for (int i = 0; i < v; i++) {
+            adj[i] = new ArrayList<>();
+        }
+        queue = new LinkedList<>(); // Use LinkedList as a Queue
     }
 
-    public void addVertex(int vertex) {
-        adjList.putIfAbsent(vertex, new ArrayList<>());
+    void addEdge(int v, int w) {
+        if (v < V && w < V) { // Ensure indices are within bounds
+            adj[v].add(w);
+            adj[w].add(v); // For undirected graph
+        } else {
+            System.out.println("Invalid edge: (" + v + ", " + w + ")");
+        }
     }
 
-    public void addEdge(int from, int to) {
-        addVertex(from);
-        addVertex(to);
-        adjList.get(from).add(to);
-        adjList.get(to).add(from);
-    }
-
-    public void dfs(int start) {
-        Set<Integer> visited = new HashSet<>();
-        dfsRecursive(start, visited);
-    }
-
-    private void dfsRecursive(int vertex, Set<Integer> visited) {
-        if (visited.contains(vertex)) {
+    void DFS(int start) {
+        if (start < 0 || start >= V) {
+            System.out.println("Invalid start node for DFS.");
             return;
         }
-        visited.add(vertex);
-        System.out.print(vertex + " ");
+        boolean[] visited = new boolean[V];
+        System.out.println("Starting DFS from node " + start);
+        DFSUtil(start, visited);
+        System.out.println();
+    }
 
-        for (int neighbor : adjList.get(vertex)) {
-            dfsRecursive(neighbor, visited);
+    private void DFSUtil(int node, boolean[] visited) {
+        if (visited[node]) {
+            return;
+        }
+        visited[node] = true;
+        System.out.print(node + " ");
+        for (int neighbor : adj[node]) {
+            if (!visited[neighbor]) {
+                DFSUtil(neighbor, visited);
+            }
         }
     }
 
-    public void bfs(int start) {
-        Set<Integer> visited = new HashSet<>();
-        Queue<Integer> queue = new LinkedList<>();
-
-        visited.add(start);
+    void BFS(int start) {
+        if (start < 0 || start >= V) {
+            System.out.println("Invalid start node for BFS.");
+            return;
+        }
+        boolean[] visited = new boolean[V];
+        queue.clear();
+        visited[start] = true;
         queue.add(start);
-
+        
+        System.out.println("Starting BFS from node " + start);
+        
         while (!queue.isEmpty()) {
-            int vertex = queue.poll();
-            System.out.print(vertex + " ");
-
-            for (int neighbor : adjList.get(vertex)) {
-                if (!visited.contains(neighbor)) {
-                    visited.add(neighbor);
+            int node = queue.poll();
+            System.out.print(node + " ");
+            
+            for (int neighbor : adj[node]) {
+                if (!visited[neighbor]) {
+                    visited[neighbor] = true;
                     queue.add(neighbor);
                 }
             }
         }
-    }
-
-    public void printGraph() {
-        for (Map.Entry<Integer, List<Integer>> entry : adjList.entrySet()) {
-            System.out.print(entry.getKey() + ": ");
-            for (Integer neighbor : entry.getValue()) {
-                System.out.print(neighbor + " ");
-            }
-            System.out.println();
-        }
-    }
-}
-
-public class Lab16_85 {
-    public static void main(String[] args) {
-        Graph graph = new Graph();
-
-        graph.addEdge(1, 2);
-        graph.addEdge(1, 3);
-        graph.addEdge(2, 4);
-        graph.addEdge(2, 5);
-        graph.addEdge(3, 6);
-        graph.addEdge(3, 7);
-
-        System.out.println("Graph:");
-        graph.printGraph();
-
-        System.out.println("\nDFS starting from vertex 1:");
-        graph.dfs(1);
-
-        System.out.println("\n\nBFS starting from vertex 1:");
-        graph.bfs(1);
+        System.out.println();
     }
 }
